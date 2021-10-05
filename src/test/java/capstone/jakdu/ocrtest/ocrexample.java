@@ -6,6 +6,8 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDCIDFontType0;
+import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.font.PDType1CFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.rendering.ImageType;
@@ -26,7 +28,10 @@ import java.util.logging.Logger;
 
 
 public class ocrexample {
+    public float[][] position = new float[2][1000];
+    public String[] fontfont = new String[1000];
 
+    public int numb=0;
     PDFTextStripper reader = new PDFTextStripper() {
         boolean startOfLine = true;
 
@@ -50,6 +55,12 @@ public class ocrexample {
 
                 TextPosition firstPosition = textPositions.get(0);
 
+                System.out.println(firstPosition.getXDirAdj()+" "+firstPosition.getYDirAdj());
+                position[0][numb]=firstPosition.getXDirAdj();
+                position[1][numb]=firstPosition.getYDirAdj();
+                System.out.println(firstPosition.getFont());
+                //fontfont[numb]=firstPosition.getFont();
+                numb +=1;
                 // writeString(String.format("[%s %s %s]", firstPosition.getFontSizeInPt(),firstPosition.getXDirAdj(), firstPosition.getYDirAdj()));
                 startOfLine = false;
             }
@@ -77,7 +88,7 @@ public class ocrexample {
     @Test
     public void getSomePageExtractPDF() throws IOException {
 
-        String fileName = "수학의힘알파중1-1.pdf";
+        String fileName = "일등급수학I.pdf";
         File source = new File(fileName);
         PDDocument pdfDoc = PDDocument.load(source);
         int i=4; // page no.
@@ -103,17 +114,21 @@ public class ocrexample {
         PDPage blankpage = new PDPage(PDRectangle.A4);
         doc.addPage(blankpage);
         //
-        String fileName = "example-페이지-4.pdf";
+        String fileName = "아샘HiMath기하.pdf";
         File source = new File(fileName);
         PDDocument pdfDoc = PDDocument.load(source);
-        //int i=4; // page no.
+        int n=4; // page no.
+        //TextPosition firstPosition = textPositions.get(0);
+        System.out.println(blankpage.getMediaBox().getHeight());
+        System.out.println(blankpage.getMediaBox().getWidth());
         reader.getLineSeparator();
-        //reader.setStartPage(i);
-        //reader.setEndPage(i);
+        reader.setStartPage(n);
+        reader.setEndPage(n);
         //  reader.setSortByPosition(true);
         String pageText = reader.getText(pdfDoc);
         System.out.println(pageText);
-
+        //float px = firstPosition.getXDirAdj();
+        //float py = firstPosition.getYDirAdj();
         String []text = pageText.split("\n");
         final List<String> list = new ArrayList<String>();
         Collections.addAll(list, text);
@@ -122,17 +137,17 @@ public class ocrexample {
 
         PDPageContentStream contentStream = new PDPageContentStream(doc,blankpage);
 
-        contentStream.beginText();
-
-        contentStream.setFont(PDType1Font.COURIER,10);
-        contentStream.newLineAtOffset(20,0);
         for(int i=0; i<text.length;i++){
+            contentStream.beginText();
+
+            contentStream.setFont(PDType1Font.TIMES_BOLD,10);
             // x, y 좌표 설정
-            contentStream.newLineAtOffset(0,10);
-            contentStream.showText(text[text.length-i-1]);
+            contentStream.newLineAtOffset(0 + position[0][i],841-position[1][i]);
+            contentStream.showText(text[i]);
+
+            contentStream.endText();
         }
 
-        contentStream.endText();
 
         contentStream.close();
 
