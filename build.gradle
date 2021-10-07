@@ -17,7 +17,6 @@ configurations {
 		extendsFrom annotationProcessor
 	}
 }
-
 repositories {
 	mavenCentral()
 }
@@ -38,6 +37,8 @@ dependencies {
 	implementation 'org.apache.pdfbox:pdfbox:2.0.19'
 
 	implementation group: 'net.sourceforge.tess4j', name: 'tess4j', version: '4.5.4'
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 test {
